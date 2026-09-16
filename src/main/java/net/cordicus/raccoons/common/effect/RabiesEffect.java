@@ -1,30 +1,30 @@
 package net.cordicus.raccoons.common.effect;
 
 import net.cordicus.raccoons.common.damage.RaccoonsRabiesDamageTypes;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
-public class RabiesEffect extends StatusEffect {
+public class RabiesEffect extends MobEffect {
     public RabiesEffect()
     {
-        super(StatusEffectCategory.HARMFUL, 0x675f5b);
+        super(MobEffectCategory.HARMFUL, 0x675f5b);
     }
 
 
+
     @Override
-    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier)
+    //? if >1.21.1
+    public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier)
+    //? if <=1.21.1
+    //public boolean applyEffectTick(LivingEntity livingEntity, int i)
     {
         return true;
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return false;
     }
 }

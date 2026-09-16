@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id("dev.kikugie.loom-back-compat")
 	id 'maven-publish'
 }
 
@@ -7,23 +7,37 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.archives_base_name
+	archivesName.set("racoons-rabies+" + (property("minecraft_version") as String))
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/raccoons-rabies.accesswidener")
+	accessWidenerPath = rootProject.file("src/main/resources/accesswideners/${stonecutter.current.version}.accesswidener")
 }
 
 repositories {
-	exclusiveContent {
-		forRepository {
-			maven {
-				name = 'GeckoLib'
-				url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+	if (sc.current.parsed < "26.1") {
+		exclusiveContent {
+			forRepository {
+				maven {
+					name = 'GeckoLib'
+					url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+				}
+			}
+			filter {
+				includeGroup('software.bernie.geckolib')
 			}
 		}
-		filter {
-			includeGroup('software.bernie.geckolib')
+	} else {
+		exclusiveContent {
+			forRepository {
+				maven {
+					name = 'GeckoLib'
+					url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+				}
+			}
+			filter {
+				includeGroupAndSubgroups('com.geckolib')
+			}
 		}
 	}
 	exclusiveContent {
@@ -46,27 +60,54 @@ fabricApi {
 
 dependencies {
 	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	minecraft "com.mojang:minecraft:" + property("minecraft_version") as String
 
-	modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}"
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}"
-	modImplementation "maven.modrinth:trinkets-canary:${project.trinkets_version}"
+	loomx.applyMojangMappings()
+
+	modImplementation "net.fabricmc:fabric-loader:" + property("loader_version") as String
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:" + property("fabric_api_version") as String
+
+	if (sc.current.parsed >= "26.1") {
+		modImplementation "maven.modrinth:trinkets-updated:${property("trinkets_version")}"
+	} else if (sc.current.parsed >= "1.21.4") {
+		modImplementation "maven.modrinth:trinkets-canary:${property("trinkets_version")}"
+	} else {
+		modImplementation "maven.modrinth:trinkets:${property("trinkets_version")}"
+	}
+
+	if (sc.current.parsed >= "26.1") {
+		modImplementation "com.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}"
+	} else {
+		modImplementation "software.bernie.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}"
+	}
+
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cca_version")}"
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cca_version")}"
+
 }
 
 processResources {
 	inputs.property "version", project.version
-
+	def minecraft = stonecutter.current.version
+	def injection = "$minecraft" as String
+	injection = "~" + injection
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand(["version": project.version,
+				"minecraft_version": injection,
+				"aw_file": "accesswideners/${stonecutter.current.version}.accesswidener"
+				])
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	if (sc.current.parsed < "1.21.1") {
+		it.options.release = 17
+	}else if (sc.current.parsed < "26.1") {
+		it.options.release = 21
+	} else {
+		it.options.release = 25
+	}
 }
 
 java {
@@ -75,8 +116,16 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	if (sc.current.parsed < "1.21.1") {
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
+	} else if (sc.current.parsed < "26.1") {
+		sourceCompatibility = JavaVersion.VERSION_21
+		targetCompatibility = JavaVersion.VERSION_21
+	} else {
+		sourceCompatibility = JavaVersion.VERSION_25
+		targetCompatibility = JavaVersion.VERSION_25
+	}
 }
 
 jar {

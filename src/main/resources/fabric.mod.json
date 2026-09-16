@@ -7,7 +7,8 @@
 	"authors": [
 		"Cordicus (Owner)",
 		"TheTrueYak (Developer)",
-		"n1tr0n__ (Developer)"
+		"n1tr0n__ (Developer)",
+		"agmass (Porting)"
 	],
 	"license": "ARR",
 	"icon": "assets/raccoons-rabies/icon.png",
@@ -26,10 +27,10 @@
 	"mixins": [
 		"raccoons-rabies.mixins.json"
 	],
-	"accessWidener": "raccoons-rabies.accesswidener",
+	"accessWidener": "${aw_file}",
 	"depends": {
 		"fabricloader": ">=0.16.4",
-		"minecraft": "~1.21.1",
+		"minecraft": "${minecraft_version}",
 		"java": ">=17",
 		"fabric-api": "*",
 		"geckolib": "*",

@@ -3,65 +3,92 @@ package net.cordicus.raccoons.entity.custom;
 import net.cordicus.raccoons.RaccoonsRabies;
 import net.cordicus.raccoons.entity.RREntityTypes;
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
+import net.cordicus.raccoons.item.component.PPTypedEntityData;
 import net.cordicus.raccoons.item.component.RaccoonHandheldDataComponent;
-import net.cordicus.raccoons.item.component.RaccoonsRabiesItemComponents;
+import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
 import net.cordicus.raccoons.sounds.RaccoonsRabiesSounds;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.mob.Angerable;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TimeHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.intprovider.UniformIntProvider;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.*;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.*;
+//? if >1.21.1
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+//? if >=1.21.4 {
+/*import net.minecraft.world.level.gamerules.GameRules;
+import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///? }
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+//? if <=1.21.4 {
 import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
+import net.minecraft.world.level.GameRules;
+//? }
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Map;
 import java.util.UUID;
 
-public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntity {
-    private static final TrackedData<Integer> TYPE = DataTracker.registerData(RaccoonEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private static final TrackedData<Boolean> IDLED = DataTracker.registerData(RaccoonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Integer> ANGER_TIME = DataTracker.registerData(RaccoonEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private static final UniformIntProvider ANGER_TIME_RANGE = TimeHelper.betweenSeconds(20, 39);
+public class RaccoonEntity extends TamableAnimal implements NeutralMob, GeoEntity {
+    private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(RaccoonEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IDLED = SynchedEntityData.defineId(RaccoonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> ANGER_TIME = SynchedEntityData.defineId(RaccoonEntity.class, EntityDataSerializers.INT);
+    private static final UniformInt ANGER_TIME_RANGE = TimeUtil.rangeOfSeconds(20, 39);
     @Nullable
     private UUID angryAt;
 
 
-    public RaccoonEntity(EntityType<? extends AnimalEntity> entityType, World world) {
-        super((EntityType<? extends TameableEntity>) entityType, world);
+    public RaccoonEntity(EntityType<? extends Animal> entityType, Level world) {
+        super((EntityType<? extends TamableAnimal>) entityType, world);
     }
 
     private static final Map<String, Integer> NAME_TO_VARIANT = Map.of(
@@ -81,14 +108,30 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
         return NAME_TO_VARIANT;
     }
 
+
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
+    //? if <=1.21.4
+    public void readAdditionalSaveData(CompoundTag nbt) {
+    //? if >=1.21.11
+    //protected void readAdditionalSaveData(ValueInput nbt) {
+        super.readAdditionalSaveData(nbt);
+        int type = nbt.getInt("Type")
+                //? if >=1.21.11
+                //.get()
+                ;
+        this.setRaccoonType(type);
+    }
+    @Override
+    //? if <=1.21.4
+    public void addAdditionalSaveData(CompoundTag nbt) {
+    //? if >=1.21.11
+    //protected void addAdditionalSaveData(ValueOutput nbt) {
+        super.addAdditionalSaveData(nbt);
         nbt.putInt("Type", this.getRaccoonType());
     }
 
     @Override
-    public void setCustomName(@Nullable Text name) {
+    public void setCustomName(@Nullable Component name) {
         super.setCustomName(name);
         if (name != null) {
             String nameString = name.getString();
@@ -98,40 +141,34 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
         }
     }
 
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        int type = nbt.getInt("Type");
-        this.setRaccoonType(type);
-    }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(TYPE, 0);
-        builder.add(IDLED, false);
-        builder.add(ANGER_TIME, 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(TYPE, 0);
+        builder.define(IDLED, false);
+        builder.define(ANGER_TIME, 0);
     }
 
     public int getRaccoonType() {
-        return this.dataTracker.get(TYPE);
+        return this.entityData.get(TYPE);
     }
     public boolean getRaccoonIdle() {
-        return this.dataTracker.get(IDLED);
+        return this.entityData.get(IDLED);
     }
 
     public void setRaccoonType(int type) {
-        this.dataTracker.set(TYPE, type);
+        this.entityData.set(TYPE, type);
     }
 
     public void setRaccoonIdle(boolean bool) {
-        this.dataTracker.set(IDLED, bool);
+        this.entityData.set(IDLED, bool);
     }
 
     private void setupAnimationStates() {
         if (this.idleAnimationTimeout <= 0) {
             this.idleAnimationTimeout = this.random.nextInt(40) + 80;
-            this.idleAnimationState.start(this.age);
+            this.idleAnimationState.start(this.tickCount);
         } else {
             this.idleAnimationTimeout--;
         }
@@ -142,8 +179,10 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.raccoon.idle");
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.raccoon.walk");
     protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("animation.raccoon.sitting");
+
+    //? if <=1.21.4 {
     protected <E extends RaccoonEntity> PlayState raccoonAnimController(final software.bernie.geckolib.animation.AnimationState<E> event) {
-        if (event.getAnimatable().isInSittingPose()) {
+        if (isInSittingPose()) {
             return event.setAndContinue(SIT);
         }
         else if (event.isMoving()) {
@@ -151,11 +190,27 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
         }
         return event.setAndContinue(IDLE);
     }
+    //? } else {
+    /*protected AnimationController.AnimationStateHandler<RaccoonEntity> raccoonAnimController() {
+        return test -> {
+            if (test.animatable().isInSittingPose()) {
+                return test.setAndContinue(SIT);
+            } else if (test.isMoving()) {
+                return test.setAndContinue(WALK);
+            }
+            return test.setAndContinue(IDLE);
+        };
+    }
+    *///? }
 
     @Override
     public void registerControllers(final AnimatableManager.ControllerRegistrar controllers) {
+        //? if <=1.21.4
         controllers.add(new AnimationController<>(this, "raccoon", 5, this::raccoonAnimController));
+        //? if >1.21.4
+        //controllers.add(new AnimationController<>(raccoonAnimController()));
     }
+
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -166,44 +221,52 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
     private int idleAnimationTimeout = 0;
 
     @Override
-    protected void updateLimbs(float posDelta) {
-        float f = this.getPose() == EntityPose.STANDING ? Math.min(posDelta * 6.0F, 1.0F): 0.0f;
-        this.limbAnimator.updateLimbs(f, 0.2F, 1.f);
+    protected void updateWalkAnimation(float posDelta) {
+        float f = this.getPose() == Pose.STANDING ? Math.min(posDelta * 6.0F, 1.0F): 0.0f;
+        this.walkAnimation.update(f, 0.2F
+                //? if >1.21.1
+                , 1f
+        );
     }
 
     @Override
     public void tick() {
         super.tick();
-        if(this.getWorld().isClient()) {
+        if(this.level().isClientSide()) {
             setupAnimationStates();
         }
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new AnimalMateGoal(this, 1.150));
-        this.goalSelector.add(2, new TemptGoal(this, 1.250, Ingredient.ofItems(Items.ROTTEN_FLESH), true));
-        this.goalSelector.add(3, new FollowParentGoal(this, 1.150));
-        this.goalSelector.add(4, new WanderAroundFarGoal(this, 1.0));
-        this.goalSelector.add(4, new LookAtEntityGoal(this, PlayerEntity.class, 4f));
-        this.goalSelector.add(4, new LookAroundGoal(this));
-        this.goalSelector.add(2, new SitGoal(this));
-        this.goalSelector.add(1, new MeleeAttackGoal(this, 1.0, true));
-        this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
-        this.targetSelector.add(3, new RevengeGoal(this).setGroupRevenge());
-        this.targetSelector.add(8, new UniversalAngerGoal<>(this, true));
-        this.targetSelector.add(2, new AttackWithOwnerGoal(this));
-        this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-        this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
-        this.goalSelector.add(10, new LookAroundGoal(this));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new BreedGoal(this, 1.150));
+        this.goalSelector.addGoal(2, new TemptGoal(this, 1.250, Ingredient.of(Items.ROTTEN_FLESH), true));
+        this.goalSelector.addGoal(3, new FollowParentGoal(this, 1.150));
+        this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 4f));
+        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, true));
+        this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
+        this.targetSelector.addGoal(3, new HurtByTargetGoal(this).setAlertOthers());
+        this.targetSelector.addGoal(8, new ResetUniversalAngerTargetGoal<>(this, true));
+        this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
+        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
     }
 
     @Override
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty,
+                                        //? if >1.21.1
+                                        EntitySpawnReason spawnReason
+                                        //? if <=1.21.1
+                                        //MobSpawnType spawnReason
+            , @Nullable SpawnGroupData entityData) {
         this.setRaccoonType(this.getRandomRaccoonType());
 
-        return super.initialize(world, difficulty, spawnReason, entityData);
+        return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
     }
 
     public int getRandomRaccoonType() { // gets random raccoon type using original code
@@ -230,173 +293,202 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
         return getRandomRaccoonType(); // 10, random type
     }
 
-    public static DefaultAttributeContainer.Builder createRaccoonAttributes() {
-        return AnimalEntity.createAnimalAttributes()
-                .add(EntityAttributes.ATTACK_DAMAGE, 4.0f)
-                .add(EntityAttributes.MOVEMENT_SPEED, 0.3f)
-                .add(EntityAttributes.MAX_HEALTH, 8.0f)
-                .add(EntityAttributes.ARMOR, 0.5f);
+    public static AttributeSupplier.Builder createRaccoonAttributes() {
+        //? if >1.21.1
+        return Animal.createAnimalAttributes()
+        //? if <=1.21.1
+        //return Animal.createMobAttributes()
+                .add(Attributes.ATTACK_DAMAGE, 4.0f)
+                .add(Attributes.MOVEMENT_SPEED, 0.3f)
+                .add(Attributes.MAX_HEALTH, 8.0f)
+                .add(Attributes.ARMOR, 0.5f);
     }
 
     @Override
-    protected void updateAttributesForTamed() {
-        if (this.isTamed()) {
-            this.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(12.0f);
+    protected void applyTamingSideEffects() {
+        if (this.isTame()) {
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(12.0f);
             this.setHealth(12.0f);
         } else {
-            this.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(4.0f);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(4.0f);
         }
     }
 
     @Override
-    public boolean isBreedingItem(ItemStack stack) {
-        return stack.contains(DataComponentTypes.FOOD);
+    public boolean isFood(ItemStack stack) {
+        return stack.has(DataComponents.FOOD);
     }
 
-    public boolean tryAttack(ServerWorld world, Entity target) {
-        boolean bl = super.tryAttack(world, target);
+    public boolean doHurtTarget(ServerLevel world, Entity target) {
+        boolean bl = super.doHurtTarget(
+                //? if >1.21.1
+                world,
+                target);
         if (bl) {
             int check = this.getRandom().nextInt(100 + 1);
             if (target instanceof LivingEntity livingEntity && check <= 50) { // 50% chance to give rabies, rabies duration is 40 ticks + (the check * 2) (min is 2 seconds, max is 140 ticks or 7 seconds)
-                livingEntity.addStatusEffect(new StatusEffectInstance(RaccoonsRabies.RABIES_EFFECT, (check * 2) + 40, 0));
+                livingEntity.addEffect(new MobEffectInstance(RaccoonsRabies.RABIES_EFFECT, (check * 2) + 40, 0));
             }
         }
         return bl;
     }
 
 
-    public boolean isUniversallyAngry(ServerWorld world) {
-        return world.getGameRules().getBoolean(GameRules.UNIVERSAL_ANGER) && this.hasAngerTime() && this.getAngryAt() == null;
+    public boolean isAngryAtAllPlayers(ServerLevel world) {
+        //? if <=1.21.4
+        return world.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER) && this.isAngry() && this.getPersistentAngerTarget() == null;
+        //? if >1.21.4
+        //return world.getGameRules().get(GameRules.UNIVERSAL_ANGER) && this.isAngry() && this.getPersistentAngerTarget() == null;
     }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
 
-        if(!this.getWorld().isClient){
-            if(itemStack.isEmpty() && player.isSneaking() && ((this.isTamed() && this.isOwner(player)) || player.getAbilities().creativeMode)) { // creative mode players can always pick up raccoons, otherwise requires them to be tamed and the player to own them
+        if(!this.level().isClientSide()){
+            if(itemStack.isEmpty() && player.isShiftKeyDown() && ((this.isTame() && this.isOwnedBy(player)) || player.getAbilities().instabuild)) { // creative mode players can always pick up raccoons, otherwise requires them to be tamed and the player to own them
                 this.discard();
-                player.setStackInHand(hand, new ItemStack(RaccoonsRabiesItems.RACCOON));
-                ItemStack handStack = player.getStackInHand(hand);
-                NbtCompound nbt = new NbtCompound();
-                this.saveNbt(nbt);
-                this.writeNbt(nbt);
-                this.writeCustomDataToNbt(nbt);
-                if (this.isTamed()) { // keeping this just in case :p
-                    nbt.putUuid("Owner", this.getOwnerUuid());
+                player.setItemInHand(hand, new ItemStack(RaccoonsRabiesItems.RACCOON));
+                ItemStack handStack = player.getItemInHand(hand);
+
+                //? if <=1.21.4 {
+                
+                CompoundTag nbt = new CompoundTag();
+                this.save(nbt);
+                this.saveWithoutId(nbt);
+                this.addAdditionalSaveData(nbt);
+                if (this.isTame()) { // keeping this just in case :p
+                    nbt.putUUID("Owner", this.getOwnerUUID());
                 }
-                String ownerUuid = (this.isTamed() && this.getOwnerUuid() != null) ? this.getOwnerUuid().toString() : ""; // preserved entity nbt and essential raccoon entity data are now stored separately for convenience and optimization reasons
-                handStack.set(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA, new RaccoonHandheldDataComponent(this.getRaccoonType(), ownerUuid, this.isBaby()));
-                handStack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+                String ownerUuid = (this.isTame() && this.getOwnerUUID() != null) ? this.getOwnerUUID().toString() : ""; // preserved entity nbt and essential raccoon entity data are now stored separately for convenience and optimization reasons
+
+                //? } else {
+                /*TagValueOutput tagValueOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
+                save(tagValueOutput);
+                saveWithoutId(tagValueOutput);
+                addAdditionalSaveData(tagValueOutput);
+                CompoundTag nbt = tagValueOutput.buildResult();
+
+                String ownerUuid = (this.isTame() && getOwnerReference() != null) ? getOwnerReference().getUUID().toString() : "";
+
+                *///? }
+
+
+                RaccoonsRabiesComponents.RACCOON_HELD_DATA.set(handStack, new RaccoonHandheldDataComponent(this.getRaccoonType(), ownerUuid, this.isBaby()));
+                RaccoonsRabiesComponents.RACCOON_DATA.set(handStack, PPTypedEntityData.of(RREntityTypes.RACCOON, nbt));
                 if (this.getCustomName() != null) { // sets custom name to item name too
-                    handStack.set(DataComponentTypes.CUSTOM_NAME, (this.getCustomName().copy().formatted(Formatting.ITALIC)));
+                    handStack.set(DataComponents.CUSTOM_NAME, (this.getCustomName().copy().withStyle(ChatFormatting.ITALIC)));
                 }
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
-        if (this.getWorld().isClient) {
-            boolean bl = this.isOwner(player) || this.isTamed() || itemStack.getComponents().contains(DataComponentTypes.FOOD) && !this.isTamed() && !this.hasAngerTime();
-            return bl ? ActionResult.CONSUME : ActionResult.PASS;
-        } else if (this.isTamed()) {
-            if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
-                if (!player.getAbilities().creativeMode) {
-                    itemStack.decrement(1);
+        if (this.level().isClientSide()) {
+            boolean bl = this.isOwnedBy(player) || this.isTame() || itemStack.getComponents().has(DataComponents.FOOD) && !this.isTame() && !this.isAngry();
+            return bl ? InteractionResult.CONSUME : InteractionResult.PASS;
+        } else if (this.isTame()) {
+            if (this.isFood(itemStack) && this.getHealth() < this.getMaxHealth()) {
+                if (!player.getAbilities().instabuild) {
+                    itemStack.shrink(1);
                 }
-                float f = itemStack.get(DataComponentTypes.FOOD) != null ? (float)itemStack.get(DataComponentTypes.FOOD).nutrition() : 1.0F;
+                float f = itemStack.get(DataComponents.FOOD) != null ? (float)itemStack.get(DataComponents.FOOD).nutrition() : 1.0F;
                 this.heal(2.0F * f);
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else {
-                ActionResult actionResult = super.interactMob(player, hand);
-                if ((!actionResult.isAccepted() || this.isBaby()) && this.isOwner(player)) {
-                    this.setSitting(!this.isSitting());
+                InteractionResult actionResult = super.mobInteract(player, hand);
+                if ((!actionResult.consumesAction() || this.isBaby()) && this.isOwnedBy(player)) {
+                    this.setOrderedToSit(!this.isOrderedToSit());
                     this.jumping = false;
                     this.navigation.stop();
                     this.setTarget(null);
-                    return ActionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 } else {
                     return actionResult;
                 }
             }
-        } else if (itemStack.get(DataComponentTypes.FOOD) != null && !this.hasAngerTime()) {
-            if (!player.getAbilities().creativeMode) {
-                itemStack.decrement(1);
+        } else if (itemStack.get(DataComponents.FOOD) != null && !this.isAngry()) {
+            if (!player.getAbilities().instabuild) {
+                itemStack.shrink(1);
             }
 
             if (this.random.nextInt(3) == 0) {
-                this.setOwner(player);
+                this.tame(player);
                 this.navigation.stop();
                 this.setTarget(null);
-                this.setSitting(true);
-                this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+                this.setOrderedToSit(true);
+                this.level().broadcastEntityEvent(this, EntityEvent.TAMING_SUCCEEDED);
             } else {
-                this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
+                this.level().broadcastEntityEvent(this, EntityEvent.TAMING_FAILED);
             }
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         } else {
-            return super.interactMob(player, hand);
+            return super.mobInteract(player, hand);
         }
     }
 
     @Override
-    public Vec3d getLeashOffset() {
-        return new Vec3d(0.0, (0.55F * this.getStandingEyeHeight()), (this.getWidth() * 0.4F));
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (0.55F * this.getEyeHeight()), (this.getBbWidth() * 0.4F));
     }
 
-    class EscapeWhenNotAggressiveGoal extends EscapeDangerGoal {
+    class EscapeWhenNotAggressiveGoal extends PanicGoal {
         public EscapeWhenNotAggressiveGoal(double speed) {
             super(RaccoonEntity.this, speed);
         }
 
         @Override
-        public boolean isInDanger() {
-            return !RaccoonEntity.this.isAggressive() && super.isInDanger();
+        public boolean shouldPanic() {
+            return !RaccoonEntity.this.isAggressive() && super.shouldPanic();
         }
     }
 
-    private boolean isAggressive() {
+    public boolean isAggressive() {
         return false;
     }
-    class MateGoal extends AnimalMateGoal {
+
+    class MateGoal extends BreedGoal {
         public MateGoal(double chance) {
             super(RaccoonEntity.this, chance);
         }
 
         @Override
         protected void breed() {
-            ServerWorld serverWorld = (ServerWorld)this.world;
-            RaccoonEntity raccoonEntity = (RaccoonEntity) ((RaccoonEntity) this.animal).createChild(serverWorld, this.mate);
+            ServerLevel serverWorld = (ServerLevel)this.level;
+            RaccoonEntity raccoonEntity = (RaccoonEntity) ((RaccoonEntity) this.animal).getBreedOffspring(serverWorld, this.partner);
             if (raccoonEntity != null) {
-                ServerPlayerEntity serverPlayerEntity = this.animal.getLovingPlayer();
-                ServerPlayerEntity serverPlayerEntity2 = this.mate.getLovingPlayer();
-                ServerPlayerEntity serverPlayerEntity3 = serverPlayerEntity;
+                ServerPlayer serverPlayerEntity = this.animal.getLoveCause();
+                ServerPlayer serverPlayerEntity2 = this.partner.getLoveCause();
+                ServerPlayer serverPlayerEntity3 = serverPlayerEntity;
                 if (serverPlayerEntity != null) {
-                    raccoonEntity.addTrustedUuid(serverPlayerEntity.getUuid());
+                    raccoonEntity.addTrustedUuid(serverPlayerEntity.getUUID());
                 } else {
                     serverPlayerEntity3 = serverPlayerEntity2;
                 }
 
                 if (serverPlayerEntity2 != null && serverPlayerEntity != serverPlayerEntity2) {
-                    raccoonEntity.addTrustedUuid(serverPlayerEntity2.getUuid());
+                    raccoonEntity.addTrustedUuid(serverPlayerEntity2.getUUID());
                 }
 
                 if (serverPlayerEntity3 != null) {
-                    serverPlayerEntity3.incrementStat(Stats.ANIMALS_BRED);
-                    Criteria.BRED_ANIMALS.trigger(serverPlayerEntity3, this.animal, this.mate, raccoonEntity);
+                    serverPlayerEntity3.awardStat(Stats.ANIMALS_BRED);
+                    CriteriaTriggers.BRED_ANIMALS.trigger(serverPlayerEntity3, this.animal, this.partner, raccoonEntity);
                 }
 
-                this.animal.setBreedingAge(6000);
-                this.mate.setBreedingAge(6000);
-                this.animal.resetLoveTicks();
-                this.mate.resetLoveTicks();
-                raccoonEntity.setBreedingAge(-24000);
-                raccoonEntity.refreshPositionAndAngles(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
-                serverWorld.spawnEntityAndPassengers(raccoonEntity);
-                this.world.sendEntityStatus(this.animal, EntityStatuses.ADD_BREEDING_PARTICLES);
-                if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                    this.world
-                            .spawnEntity(new ExperienceOrbEntity(this.world, this.animal.getX(), this.animal.getY(), this.animal.getZ(), this.animal.getRandom().nextInt(7) + 1));
+                this.animal.setAge(6000);
+                this.partner.setAge(6000);
+                this.animal.resetLove();
+                this.partner.resetLove();
+                raccoonEntity.setAge(-24000);
+                raccoonEntity.setPos(this.animal.getX(), this.animal.getY(), this.animal.getZ());
+                serverWorld.addFreshEntityWithPassengers(raccoonEntity);
+                this.level.broadcastEntityEvent(this.animal, EntityEvent.IN_LOVE_HEARTS);
+                //? if <=1.21.4
+                if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+                //? if >1.21.4
+                //if (this.level.getGameRules().get(GameRules.MOB_DROPS).booleanValue()) {
+                    this.level
+                            .addFreshEntity(new ExperienceOrb(this.level, this.animal.getX(), this.animal.getY(), this.animal.getZ(), this.animal.getRandom().nextInt(7) + 1));
                 }
 
             }
@@ -408,56 +500,97 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
     }
 
     @Nullable
-    public RaccoonEntity createChild(ServerWorld serverWorld, PassiveEntity passiveEntity) {
+    public RaccoonEntity getBreedOffspring(ServerLevel serverWorld, AgeableMob passiveEntity) {
         int childType = getWeightedRaccoonType(this.getRaccoonType(), ((RaccoonEntity) passiveEntity).getRaccoonType());
-        RaccoonEntity raccoonEntity = (RaccoonEntity) RREntityTypes.RACCOON.create(serverWorld, SpawnReason.BREEDING);
+        RaccoonEntity raccoonEntity = (RaccoonEntity) RREntityTypes.RACCOON.create(serverWorld
+                //? >1.21.1
+                , EntitySpawnReason.BREEDING
+        );
         if (raccoonEntity != null) {
             raccoonEntity.setRaccoonType(childType);
-            UUID uUID = this.getOwnerUuid();
+            //? if <=1.21.4
+            UUID uUID = this.getOwnerUUID();
+            //? if >=1.21.11
+            //UUID uUID = this.getOwnerReference().getUUID();
             if (uUID != null) {
-                raccoonEntity.setOwnerUuid(uUID);
-                raccoonEntity.setTamed(true, true);
+
+                //? if <=1.21.4
+                raccoonEntity.setOwnerUUID(uUID);
+                //? if >=1.21.11
+                //raccoonEntity.setOwnerReference(EntityReference.of(uUID));
+                raccoonEntity.setTame(true, true);
             }
         }
         return raccoonEntity;
     }
 
     @Override
-    public int getMaxLookPitchChange() {
-        return this.isInSittingPose() ? 20 : super.getMaxLookPitchChange();
+    public int getMaxHeadXRot() {
+        return this.isInSittingPose() ? 20 : super.getMaxHeadXRot();
+    }
+
+    //? if <=1.21.4 {
+    @Override
+    public int getRemainingPersistentAngerTime() {
+        return this.entityData.get(ANGER_TIME);
     }
 
     @Override
-    public int getAngerTime() {
-        return this.dataTracker.get(ANGER_TIME);
-    }
-
-    @Override
-    public void setAngerTime(int angerTime) {
-        this.dataTracker.set(ANGER_TIME, angerTime);
+    public void setRemainingPersistentAngerTime(int angerTime) {
+        this.entityData.set(ANGER_TIME, angerTime);
     }
 
     @Nullable
     @Override
-    public UUID getAngryAt() {
+    public UUID getPersistentAngerTarget() {
         return this.angryAt;
     }
 
     @Override
-    public void setAngryAt(@Nullable UUID angryAt) {
+    public void setPersistentAngerTarget(@Nullable UUID angryAt) {
         this.angryAt = angryAt;
     }
 
     @Override
-    public void chooseRandomAngerTime() {
-        this.setAngerTime(ANGER_TIME_RANGE.get(this.random));
+    public void startPersistentAngerTimer() {
+        this.setRemainingPersistentAngerTime(ANGER_TIME_RANGE.sample(this.random));
     }
+    //? } else {
+    /*@Override
+    public long getPersistentAngerEndTime() {
+        return this.entityData.get(ANGER_TIME);
+    }
+
+    @Override
+    public void setPersistentAngerEndTime(long l) {
+        this.entityData.set(ANGER_TIME, (int) l);
+    }
+
+    @Override
+    public @Nullable EntityReference<LivingEntity> getPersistentAngerTarget() {
+        return EntityReference.of(angryAt);
+    }
+
+    @Override
+    public void setPersistentAngerTarget(@Nullable EntityReference<LivingEntity> entityReference) {
+        angryAt = entityReference.getUUID();
+    }
+
+    @Override
+    public void startPersistentAngerTimer() {
+        setPersistentAngerEndTime(ANGER_TIME_RANGE.sample(random));
+    }
+
+    *///? }
+
+
+
 
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
         if(this.getRaccoonType() == 1){
-            return SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME;
+            return SoundEvents.AMETHYST_BLOCK_CHIME;
         }
         return RaccoonsRabiesSounds.ENTITY_RACCOON_AMBIENT;
     }
@@ -466,7 +599,7 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         if(this.getRaccoonType() == 1){
-            return SoundEvents.BLOCK_AMETHYST_BLOCK_STEP;
+            return SoundEvents.AMETHYST_BLOCK_STEP;
         }
         return RaccoonsRabiesSounds.ENTITY_RACCOON_HURT;
     }
@@ -475,17 +608,24 @@ public class RaccoonEntity extends TameableEntity implements Angerable, GeoEntit
     @Override
     protected SoundEvent getDeathSound() {
         if(this.getRaccoonType() == 1){
-            return SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK;
+            return SoundEvents.AMETHYST_BLOCK_BREAK;
         }
         return RaccoonsRabiesSounds.ENTITY_RACCOON_DEATH;
     }
 
-    public boolean damage(ServerWorld world, DamageSource source, float amount) { // owner cannot hit their own raccoons
-        if (source.getAttacker() instanceof PlayerEntity player && this.isTamed()) {
-            if (this.getOwner() != null && player.equals(this.getOwner()) && !player.getMainHandStack().isIn(RaccoonsRabies.HITTABLE)) {
+    //? if >1.21.1
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) { // owner cannot hit their own raccoons
+    //? if <=1.21.1
+    //public boolean hurt(DamageSource source, float amount) {
+        if (source.getEntity() instanceof Player player && this.isTame()) {
+            if (this.getOwner() != null && player.equals(this.getOwner()) && !player.getMainHandItem().is(RaccoonsRabies.HITTABLE)) {
                 return false;
             }
         }
-        return super.damage(world, source, amount);
+
+        //? if >1.21.1
+        return super.hurtServer(world, source, amount);
+        //? if <=1.21.1
+        //return super.hurt(source, amount);
     }
 }

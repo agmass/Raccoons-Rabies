@@ -4,53 +4,48 @@ import net.cordicus.raccoons.command.SpawnRaccoonCommand;
 import net.cordicus.raccoons.common.effect.RabiesEffect;
 import net.cordicus.raccoons.entity.RREntityTypes;
 import net.cordicus.raccoons.entity.custom.RaccoonEntity;
+import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
-import net.cordicus.raccoons.item.component.RaccoonsRabiesItemComponents;
-import net.cordicus.raccoons.sounds.RaccoonsRabiesSounds;
+import net.cordicus.raccoons.porting.RRIdentifier;import net.cordicus.raccoons.sounds.RaccoonsRabiesSounds;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.biome.Biomes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RaccoonsRabies implements ModInitializer {
 	public static final String MOD_ID = "raccoons-rabies";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final RegistryEntry<StatusEffect> RABIES_EFFECT = Registry.registerReference(Registries.STATUS_EFFECT, id("rabies"), new RabiesEffect());
-	public static final TagKey<Item> HITTABLE = TagKey.of(Registries.ITEM.getKey(), id("hittable"));
-
-	public static Identifier id(String path) {
-		return Identifier.of(RaccoonsRabies.MOD_ID, path);
-	}
+	public static final Holder<MobEffect> RABIES_EFFECT = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, RRIdentifier.of("rabies").id, new RabiesEffect());
+	public static final TagKey<Item> HITTABLE = TagKey.create(BuiltInRegistries.ITEM.key(), RRIdentifier.of("hittable").id);
 
 	@Override
 	public void onInitialize() {
 		FabricDefaultAttributeRegistry.register(RREntityTypes.RACCOON, RaccoonEntity.createRaccoonAttributes());
 		RaccoonsRabiesItems.initItems();
-		RaccoonsRabiesItemComponents.registerItemComponents();
 		RREntityTypes.initMobEntities();
+		RaccoonsRabiesComponents.init();
 		RaccoonsRabiesSounds.registerSounds();
 		RaccoonsRabiesLootTableModifiers.modifyLootTables();
-		BiomeModifications.addSpawn(BiomeSelectors.includeByKey(BiomeKeys.FOREST),
-				SpawnGroup.CREATURE,
+		BiomeModifications.addSpawn(BiomeSelectors.includeByKey(Biomes.FOREST),
+				MobCategory.CREATURE,
 				RREntityTypes.RACCOON,
 				8, 1, 4);
 
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			SpawnRaccoonCommand.register(server.getCommandManager().getDispatcher(), null);
+			SpawnRaccoonCommand.register(server.getCommands().getDispatcher(), null);
 		});
 
 	}

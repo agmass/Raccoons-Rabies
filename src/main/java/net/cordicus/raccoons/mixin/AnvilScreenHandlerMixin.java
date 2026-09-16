@@ -3,50 +3,61 @@ package net.cordicus.raccoons.mixin;
 import net.cordicus.raccoons.entity.custom.RaccoonEntity;
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
 import net.cordicus.raccoons.item.component.RaccoonHandheldDataComponent;
-import net.cordicus.raccoons.item.component.RaccoonsRabiesItemComponents;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.AnvilScreenHandler;
-import net.minecraft.screen.ForgingScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.ForgingSlotsManager;
+import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(AnvilScreenHandler.class)
-public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
+@Mixin(AnvilMenu.class)
+public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
 
-    public AnvilScreenHandlerMixin(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context, ForgingSlotsManager slotsManager) {
-        super(type, syncId, playerInventory, context, slotsManager);
+    public AnvilScreenHandlerMixin(@Nullable MenuType<?> type, int syncId, Inventory playerInventory, ContainerLevelAccess context, ItemCombinerMenuSlotDefinition slotsManager) {
+        super(type, syncId, playerInventory, context
+                //? if >1.21.1
+                , slotsManager
+        );
     }
 
-    @Inject(method = "onTakeOutput", at = @At("TAIL"))
-    private void raccoonsRabies$renamesUpdateRaccoonType(PlayerEntity player, ItemStack stack, CallbackInfo ci) {
-        if (!stack.isOf(RaccoonsRabiesItems.RACCOON)) return; // exits if stack is not a raccoon
+    @Inject(method = "onTake", at = @At("TAIL"))
+    private void raccoonsRabies$renamesUpdateRaccoonType(Player player, ItemStack stack, CallbackInfo ci) {
+        if (!stack.is(RaccoonsRabiesItems.RACCOON)) return; // exits if stack is not a raccoon
 
-        if (RaccoonEntity.getNameToVariant().containsKey(stack.getName().getString().toLowerCase()) && stack.contains(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA)) {
-            stack.set(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA,
-                    new RaccoonHandheldDataComponent(RaccoonEntity.getNameToVariant().get(stack.getName().getString().toLowerCase()),
-                            stack.get(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA).owner(),
-                            stack.get(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA).baby()));
+        if (RaccoonEntity.getNameToVariant().containsKey(stack.getHoverName().getString().toLowerCase()) && RaccoonsRabiesComponents.RACCOON_HELD_DATA.has(stack)) {
+            RaccoonsRabiesComponents.RACCOON_HELD_DATA.set(
+                    stack,
+                    new RaccoonHandheldDataComponent(
+                            RaccoonEntity.getNameToVariant().get(stack.getHoverName().getString().toLowerCase()),
+                            RaccoonsRabiesComponents.RACCOON_HELD_DATA.get(stack).owner(),
+                            RaccoonsRabiesComponents.RACCOON_HELD_DATA.get(stack).baby())
+            );
+
         }
     }
 
-    @Inject(method = "updateResult", at = @At("TAIL"))
+    @Inject(method = "createResult", at = @At("TAIL"))
     private void raccoonsRabies$renamesUpdateRaccoonResultType(CallbackInfo ci) {
-        ItemStack stack = this.output.getStack(getResultSlotIndex());
-        if (!stack.isOf(RaccoonsRabiesItems.RACCOON)) return; // exits if stack is not a raccoon
+        ItemStack stack = this.resultSlots.getItem(getResultSlot());
+        if (!stack.is(RaccoonsRabiesItems.RACCOON)) return; // exits if stack is not a raccoon
 
-        if (RaccoonEntity.getNameToVariant().containsKey(stack.getName().getString().toLowerCase()) && stack.contains(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA)) {
-            stack.set(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA,
-                    new RaccoonHandheldDataComponent(RaccoonEntity.getNameToVariant().get(stack.getName().getString().toLowerCase()),
-                            stack.get(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA).owner(),
-                            stack.get(RaccoonsRabiesItemComponents.RACCOON_ENTITY_DATA).baby()));
+        if (RaccoonEntity.getNameToVariant().containsKey(stack.getHoverName().getString().toLowerCase()) && RaccoonsRabiesComponents.RACCOON_HELD_DATA.has(stack)) {
+            RaccoonsRabiesComponents.RACCOON_HELD_DATA.set(
+                    stack,
+                    new RaccoonHandheldDataComponent(
+                            RaccoonEntity.getNameToVariant().get(stack.getHoverName().getString().toLowerCase()),
+                            RaccoonsRabiesComponents.RACCOON_HELD_DATA.get(stack).owner(),
+                            RaccoonsRabiesComponents.RACCOON_HELD_DATA.get(stack).baby())
+            );
+
         }
     }
 

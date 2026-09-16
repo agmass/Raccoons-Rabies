@@ -1,10 +1,10 @@
 package net.cordicus.raccoons.sounds;
 
 import net.cordicus.raccoons.RaccoonsRabies;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.cordicus.raccoons.porting.RRIdentifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvent;
 
 public class RaccoonsRabiesSounds {
     public static final SoundEvent ENTITY_RACCOON_AMBIENT = registerSoundEvent("entity_raccoon_ambient");
@@ -13,8 +13,7 @@ public class RaccoonsRabiesSounds {
 
 
     private static SoundEvent registerSoundEvent(String name) {
-        Identifier id = RaccoonsRabies.id(name);
-        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, RRIdentifier.of(name).id, SoundEvent.createVariableRangeEvent(RRIdentifier.of(name).id));
     }
 
     public static void registerSounds() {

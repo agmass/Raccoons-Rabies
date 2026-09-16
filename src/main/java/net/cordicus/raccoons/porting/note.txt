@@ -1,0 +1,2 @@
+All porting code originally from "Perky".
+Perky Attachment API excluded, attachments not nessecary.

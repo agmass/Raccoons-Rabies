@@ -2,31 +2,56 @@ package net.cordicus.raccoons.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import net.cordicus.raccoons.item.component.RaccoonsRabiesItemComponents;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.state.BipedEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=1.21.11
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+//? if >1.21.1
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ArmorFeatureRenderer.class)
-public abstract class ArmorFeatureRendererMixin<T extends BipedEntityRenderState, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
+@Mixin(HumanoidArmorLayer.class)
+public abstract class ArmorFeatureRendererMixin<T extends
+        //? if >1.21.1
+        HumanoidRenderState
+        //? if <1.21.1
+        //LivingEntity
+        , M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends RenderLayer<T, M> {
 
-    public ArmorFeatureRendererMixin(FeatureRendererContext<T, M> context) {
+    public ArmorFeatureRendererMixin(RenderLayerParent<T, M> context) {
         super(context);
     }
 
-    @WrapMethod(method = "renderArmor")
-    private void raccoonRabies$removeHood(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemStack stack, EquipmentSlot slot, int light, A armorModel, Operation<Void> original){
-        if(!(stack.contains(RaccoonsRabiesItemComponents.HIDE_BANDIT_HOOD) && slot.equals(EquipmentSlot.HEAD))){
-            if (!(stack.getOrDefault(RaccoonsRabiesItemComponents.HIDE_BANDIT_HOOD, false))) {
-                original.call(matrices, vertexConsumers, stack, slot, light, armorModel);
+    //? if <1.21.11 {
+    @WrapMethod(method = "renderArmorPiece")
+    //? >1.21.1
+    private void raccoonRabies$removeHood(PoseStack matrices, MultiBufferSource vertexConsumers, ItemStack changingarg, EquipmentSlot slot, int light, A armorModel, Operation<Void> original){
+    ItemStack stack = changingarg;
+        //? <=1.21.1 {
+    /*private void raccoonRabies$removeHood(PoseStack matrices, MultiBufferSource vertexConsumers, T changingarg, EquipmentSlot slot, int light, A armorModel, Operation<Void> original){
+      ItemStack stack = livingEntity.getItemBySlot(slot);
+      *///? }
+        if(!(RaccoonsRabiesComponents.HIDE_BANDIT_HOOD.has(stack) && slot.equals(EquipmentSlot.HEAD))){
+            if (!RaccoonsRabiesComponents.HIDE_BANDIT_HOOD.get(stack)) {
+                original.call(matrices, vertexConsumers, changingarg, slot, light, armorModel);
             }
         }
     }
+    //? } else {
+    /*@WrapMethod(method = "renderArmorPiece")
+    private void raccoonRabies$removeHood(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, ItemStack stack, EquipmentSlot slot, int i, HumanoidRenderState humanoidRenderState, Operation<Void> original){
+        if(!(RaccoonsRabiesComponents.HIDE_BANDIT_HOOD.has(stack) && slot.equals(EquipmentSlot.HEAD))){
+            if (!RaccoonsRabiesComponents.HIDE_BANDIT_HOOD.get(stack)) {
+                original.call(poseStack, submitNodeCollector, stack, slot, i, humanoidRenderState);
+            }
+        }
+    }
+    *///? }
 }
