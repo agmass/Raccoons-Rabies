@@ -8,47 +8,69 @@ import io.netty.buffer.ByteBuf;
 import net.cordicus.raccoons.RaccoonsRabies;
 import net.minecraft.ChatFormatting;
 //? if >=1.21.11
-import net.minecraft.core.component.DataComponentGetter;
+//import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryOps;
+//? if >1.20.1
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
+//? if >=1.21.1 {
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.TooltipProvider;
+//? }
 
 //? if >=1.21.11 {
-import net.minecraft.world.level.storage.TagValueInput;
+/*import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
-//? }
+*///? }
 
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class PPTypedEntityData<IdType> {
+    //? if <=1.21.4 {
+    public static Codec<EntityType<?>> ENTITY_TYPE_CODEC = BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("id").codec();
+    //? }
     final IdType type;
     final CompoundTag tag;
 
     public static <T> Codec<PPTypedEntityData<T>> codec(final Codec<T> codec) {
         return new Codec<PPTypedEntityData<T>>() {
             public <V> DataResult<Pair<PPTypedEntityData<T>, V>> decode(DynamicOps<V> dynamicOps, V object) {
-
+                //? if <1.21.1 {
+                /*return CompoundTag.CODEC
+                        .decode(dynamicOps, object).flatMap((pair) -> {
+                            CompoundTag compoundTag = ((CompoundTag)pair.getFirst()).copy();
+                            compoundTag.remove("id");
+                            return codec.parse(asNbtOps(dynamicOps), compoundTag).map((objectx) -> Pair.of(new PPTypedEntityData<>(objectx, compoundTag), pair.getSecond()));
+                        });
+                *///? } else {
+                
                 //? if >=1.21.11
                 //return CustomData.COMPOUND_TAG_CODEC
-                //? if >=1.21.11
+                //? if <1.21.11
                 return CustomData.CODEC
                         .decode(dynamicOps, object).flatMap((pair) -> {
-                    CompoundTag compoundTag = ((CompoundTag)pair.getFirst()).copy();
-                    Tag tag = compoundTag.remove("id");
+                    CompoundTag compoundTag = ((CompoundTag)pair.getFirst()
+                            //? if <=1.21.4
+                            .copyTag()
+                    ).copy();
+                    //? if >=1.21.11
+                    //Tag tag = compoundTag.remove("id");
+                    //? if <=1.21.4 {
+                    CompoundTag tag = compoundTag;
+                    //? }
                     return tag == null ? DataResult.error(() -> "Expected 'id' field in " + String.valueOf(object)) : codec.parse(asNbtOps(dynamicOps), tag).map((objectx) -> Pair.of(new PPTypedEntityData<>(objectx, compoundTag), pair.getSecond()));
                 });
+                //? }
             }
 
             public <V> DataResult<V> encode(PPTypedEntityData<T> typedEntityData, DynamicOps<V> dynamicOps, V object) {
@@ -56,31 +78,45 @@ public final class PPTypedEntityData<IdType> {
                     CompoundTag compoundTag = typedEntityData.tag.copy();
                     compoundTag.put("id", tag);
 
+                    //? if <1.21.1 {
+                    /*return CompoundTag.CODEC.encode(compoundTag, dynamicOps, object);
+                    *///? } else {
+                    
                     //? if >=1.21.11
                     //return CustomData.COMPOUND_TAG_CODEC.encode(compoundTag, dynamicOps, object);
-                    //? if >=1.21.11
+                    //? if <1.21.11
                     return CustomData.CODEC.encode(CustomData.of(compoundTag), dynamicOps, object);
-
+                    //? }
                 });
             }
 
             private static <T> DynamicOps<Tag> asNbtOps(DynamicOps<T> dynamicOps) {
+                //? if <1.21.1 {
+                /*return NbtOps.INSTANCE;
+                *///? } else {
                 if (dynamicOps instanceof RegistryOps<T> registryOps) {
                     return registryOps.withParent(NbtOps.INSTANCE);
                 } else {
                     return NbtOps.INSTANCE;
                 }
+                //? }
             }
         };
     }
 
+    //? if >=1.21.1 {
     public static  <B extends ByteBuf,T> StreamCodec<B, PPTypedEntityData<T>> streamCodec(StreamCodec<B, T> streamCodec) {
         return StreamCodec.composite(streamCodec, PPTypedEntityData::type, ByteBufCodecs.COMPOUND_TAG, PPTypedEntityData::tag, PPTypedEntityData::new);
     }
+    //? }
 
     PPTypedEntityData(IdType object, CompoundTag compoundTag) {
         this.type = object;
-        this.tag = stripId(compoundTag);
+        //? if >=1.21.1 {
+        //this.tag = stripId(compoundTag);
+        //? } else {
+        this.tag = compoundTag;
+        //? }
     }
 
     public static <T> PPTypedEntityData<T> of(T object, CompoundTag compoundTag) {

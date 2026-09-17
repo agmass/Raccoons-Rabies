@@ -15,7 +15,9 @@ import net.minecraft.world.phys.Vec3;
 public class RREntityTypes {
     public static final EntityType<RaccoonEntity> RACCOON = register("raccoon", EntityType.Builder.of(RaccoonEntity::new, MobCategory.CREATURE)
             .sized(0.6f, 0.6f)
+            //? if >=1.21.1
             .eyeHeight(0.55f)
+            //? if >=1.21.1
             .passengerAttachments(new Vec3(0.0, 0.7, -0.1))
             .clientTrackingRange(10)
     );
@@ -24,7 +26,7 @@ public class RREntityTypes {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, RRIdentifier.of(path).id);
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type.build(key
             //? if <=1.21.1
-                //.toString()
+                .toString()
         ));
     }
 

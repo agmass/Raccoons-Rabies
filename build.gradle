@@ -24,7 +24,8 @@ repositories {
 				}
 			}
 			filter {
-				includeGroup('software.bernie.geckolib')
+				includeGroupByRegex("software\\.bernie.*")
+				includeGroup("com.eliotlash.mclib")
 			}
 		}
 	} else {
@@ -55,7 +56,9 @@ repositories {
 }
 
 fabricApi {
-	configureDataGeneration()
+	configureDataGeneration {
+		client = true
+	}
 }
 
 dependencies {
@@ -82,9 +85,13 @@ dependencies {
 		modImplementation "software.bernie.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}"
 	}
 
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cca_version")}"
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cca_version")}"
-
+	if (sc.current.parsed > "1.20.4") {
+		modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cca_version")}"
+		modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cca_version")}"
+	} else {
+		modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${property("cca_version")}"
+		modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${property("cca_version")}"
+	}
 }
 
 processResources {

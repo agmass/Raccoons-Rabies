@@ -3,12 +3,14 @@ package net.cordicus.raccoons.mixin;
 import net.cordicus.raccoons.item.custom.RaccoonHandheldItem;
 import net.minecraft.client.model.HumanoidModel;
 //? if <=1.21.4
+import net.minecraft.client.player.AbstractClientPlayer;
+//? if <1.21.11
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 //? if >=1.21.11
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+//import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.world.InteractionHand;
 //? if >=1.21.11
-import net.minecraft.world.entity.Avatar;
+//import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +24,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 //@Mixin(AvatarRenderer.class)
 public class PlayerEntityRendererMixin {
 
-    //? if <=1.21.4 {
+    //? if <=1.20.4 {
+    /*@Inject(method = "getArmPose", at = @At("HEAD"), cancellable = true)
+    private static void raccoonsrabies$getArmPoseDR(AbstractClientPlayer player, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
+    *///? } else if <=1.21.4 {
     @Inject(method = "getArmPose(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void raccoonsrabies$getArmPoseDR(Player player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
     //? } else {

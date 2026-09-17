@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "raccoons-rabies:bandit_layer_1"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "raccoons-rabies:bandit_layer_2"
+      }
+    ]
+  }
+}

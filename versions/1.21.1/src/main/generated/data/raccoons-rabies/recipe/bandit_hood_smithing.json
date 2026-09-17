@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "raccoons-rabies:raccoon_furs"
+  },
+  "base": {
+    "item": "minecraft:diamond_helmet"
+  },
+  "result": {
+    "count": 1,
+    "id": "raccoons-rabies:bandit_hood"
+  },
+  "template": {
+    "item": "raccoons-rabies:bandit_upgrade"
+  }
+}

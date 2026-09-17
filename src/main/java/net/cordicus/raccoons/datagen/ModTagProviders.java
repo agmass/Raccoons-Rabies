@@ -1,9 +1,12 @@
 package net.cordicus.raccoons.datagen;
 //? if >=26.1 {
-/*import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+/*import net.cordicus.raccoons.item.RaccoonsRabiesItems;
+import net.cordicus.raccoons.item.RaccoonsRabiesTags;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 *///? } else {
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
+import net.cordicus.raccoons.item.RaccoonsRabiesTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 //? }
@@ -12,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 //? if >1.21.4
 //import net.minecraft.data.tags.TagAppender;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -41,6 +45,9 @@ public class ModTagProviders {
             add(RaccoonsRabiesItems.BANDIT_GREAVES, net.minecraft.tags.ItemTags.TRIMMABLE_ARMOR);
             add(RaccoonsRabiesItems.BANDIT_GAMBESON, net.minecraft.tags.ItemTags.TRIMMABLE_ARMOR);
             add(RaccoonsRabiesItems.BANDIT_HOOD, net.minecraft.tags.ItemTags.TRIMMABLE_ARMOR);
+
+            add(RaccoonsRabiesItems.RACCOON_FUR, RaccoonsRabiesTags.RACCOON_FURS);
+            add(RaccoonsRabiesItems.ALBINO_RACCOON_FUR, RaccoonsRabiesTags.RACCOON_FURS);
         }
 
         public void add(Item item, TagKey<Item> tag) {

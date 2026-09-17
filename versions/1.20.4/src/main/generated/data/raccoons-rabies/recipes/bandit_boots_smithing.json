@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "raccoons-rabies:raccoon_furs"
+  },
+  "base": {
+    "item": "minecraft:diamond_boots"
+  },
+  "result": {
+    "item": "raccoons-rabies:bandit_boots"
+  },
+  "template": {
+    "item": "raccoons-rabies:bandit_upgrade"
+  }
+}

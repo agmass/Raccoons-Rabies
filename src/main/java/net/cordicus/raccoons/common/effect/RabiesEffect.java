@@ -13,12 +13,12 @@ public class RabiesEffect extends MobEffect {
     }
 
 
-
+    //? if >=1.21.1 {
     @Override
     //? if >1.21.1
-    public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier)
+    //public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier)
     //? if <=1.21.1
-    //public boolean applyEffectTick(LivingEntity livingEntity, int i)
+    public boolean applyEffectTick(LivingEntity livingEntity, int i)
     {
         return true;
     }
@@ -27,4 +27,5 @@ public class RabiesEffect extends MobEffect {
     public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return false;
     }
+    //? }
 }

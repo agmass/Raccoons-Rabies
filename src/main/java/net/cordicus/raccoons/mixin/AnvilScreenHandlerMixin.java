@@ -24,7 +24,7 @@ public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
     public AnvilScreenHandlerMixin(@Nullable MenuType<?> type, int syncId, Inventory playerInventory, ContainerLevelAccess context, ItemCombinerMenuSlotDefinition slotsManager) {
         super(type, syncId, playerInventory, context
                 //? if >1.21.1
-                , slotsManager
+                //, slotsManager
         );
     }
 

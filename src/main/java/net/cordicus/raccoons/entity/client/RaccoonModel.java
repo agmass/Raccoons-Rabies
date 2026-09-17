@@ -8,11 +8,17 @@ import net.cordicus.raccoons.porting.RRIdentifier;
 //? if <1.21.11
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.model.GeoModel;
 //? if <1.21.11
 import software.bernie.geckolib.renderer.GeoRenderer;
+
+//? <26.1 {
+import software.bernie.geckolib.model.GeoModel;
 //? if >=1.21.11
-import software.bernie.geckolib.renderer.base.GeoRenderState;
+//import software.bernie.geckolib.renderer.base.GeoRenderState;
+//? } else {
+/*import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.base.GeoRenderState;
+*///? }
 
 public class RaccoonModel extends GeoModel<RaccoonEntity> {
 	//AWAKE
@@ -44,14 +50,17 @@ public class RaccoonModel extends GeoModel<RaccoonEntity> {
 	//public Identifier
 	getModelResource(
 			 //? if <=1.21.1
-			 //RaccoonEntity raccoon
+			 RaccoonEntity raccoon
 			 //? if =1.21.4
-			 RaccoonEntity raccoon,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
+			 //RaccoonEntity raccoon,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
 			 //? if >=1.21.11
 			 //GeoRenderState raccoon
 	)
 	{
+		//? if  <1.21.11
 		return RRIdentifier.of("geo/raccoon.geo.json").id;
+		//? if >=1.21.11
+		//return RRIdentifier.of("entity/raccoon").id;
 	}
 
 	@Override
@@ -61,15 +70,15 @@ public class RaccoonModel extends GeoModel<RaccoonEntity> {
 	//public Identifier
 	getTextureResource(
 			//? if <=1.21.1
-			//RaccoonEntity raccoon
+			RaccoonEntity raccoon
 			//? if =1.21.4
-			RaccoonEntity raccoon,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
+			//RaccoonEntity raccoon,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
 			//? if >=1.21.11
 			//GeoRenderState raccoon
 	) {
 		return getRaccoonTexture(raccoon
-			//? if <1.21.11
-				, geoRenderer
+			//? if <1.21.11 && >1.21.1
+				//, geoRenderer
 		);
 	}
 
@@ -79,7 +88,10 @@ public class RaccoonModel extends GeoModel<RaccoonEntity> {
 	//? if >=1.21.11
 	//public Identifier
 	getAnimationResource(RaccoonEntity animatable) {
+		//? if <1.21.11
 		return RRIdentifier.of("animations/raccoon.animation.json").id;
+		//? if >=1.21.11
+		//return RRIdentifier.of("entity/raccoon").id;
 	}
 
 
@@ -89,59 +101,65 @@ public class RaccoonModel extends GeoModel<RaccoonEntity> {
 	//public static Identifier
 	getRaccoonTexture(
 			//? if <=1.21.1
-			//RaccoonEntity raccoonType
+			RaccoonEntity raccoonType
 			//? if =1.21.4
-			RaccoonEntity raccoonType,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
+			//RaccoonEntity raccoonType,  @Nullable GeoRenderer<RaccoonEntity> geoRenderer
 			//? if >=1.21.11
 			//GeoRenderState raccoon
 	) {
-		//? if >=1.21.11
-		//RaccoonRenderState raccoonType = (RaccoonRenderState) raccoon;
+		//? if >=1.21.11 {
+		/*boolean isSitting = raccoon.getGeckolibData(RaccoonRenderer.isSitting);
+		return switch (raccoon.getGeckolibData(RaccoonRenderer.type).intValue()) {
+		*///? } else {
+		
+		boolean isSitting = raccoonType.isInSittingPose();
 		return switch (raccoonType.getRaccoonType()) {
+		//? }
+
 			case 1 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield AMETHYST_S.id;
 				}
 				yield AMETHYST.id;
 			}
 			case 2 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield ALBINO_S.id;
 				}
 				yield ALBINO.id;
 			}
 			case 4 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield CORD_S.id;
 				}
 				yield CORD.id;
 			}
 			case 5 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield NITRON_S.id;
 				}
 				yield NITRON.id;
 			}
 			case 6 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield BANDIT_S.id;
 				}
 				yield BANDIT.id;
 			}
 			case 7 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield YAK_S.id;
 				}
 				yield YAK.id;
 			}
 			case 8 -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield ROCKET_S.id;
 				}
 				yield ROCKET.id;
 			}
 			default -> {
-				if (raccoonType.isInSittingPose()) {
+				if (isSitting) {
 					yield RACCOON_S.id;
 				}
 				yield RACCOON.id;

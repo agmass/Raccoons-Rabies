@@ -11,7 +11,7 @@ import net.minecraft.Util;
 //? if <1.21.11
 import net.minecraft.resources.ResourceLocation;
 //? if >=1.21.11
-import net.minecraft.util.Util;
+//import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SmithingTemplateItem;
 import java.util.List;
@@ -42,7 +42,7 @@ public class BanditSmithingTemplateItem extends SmithingTemplateItem {
 
     public BanditSmithingTemplateItem(Component appliesToText, Component ingredientsText
             //? <=1.21.1
-            //, Component upgradeText
+            , Component upgradeText
             , Component baseSlotDescriptionText, Component additionsSlotDescriptionText,
                                       //? if >=1.21.11
                                       //List<Identifier>
@@ -56,10 +56,10 @@ public class BanditSmithingTemplateItem extends SmithingTemplateItem {
                                               emptyAdditionsSlotTextures, Properties settings) {
         super(appliesToText, ingredientsText
                 //? if <=1.21.1
-                //, upgradeText
+                , upgradeText
                 , baseSlotDescriptionText, additionsSlotDescriptionText,  emptyBaseSlotTextures, emptyAdditionsSlotTextures
                 //? if >1.21.1
-                , settings
+                //, settings
         );
     }
 
@@ -69,11 +69,11 @@ public class BanditSmithingTemplateItem extends SmithingTemplateItem {
                 BANDIT_UPGRADE_TEXT,
                 BANDIT_UPGRADE_ADDITIONS_SLOT_DESCRIPTION_TEXT,
                 //? if <=1.21.1
-                //BANDIT_UPGRADE_UPPGRADE_DESCRIPTION_TEXT,
+                BANDIT_UPGRADE_UPPGRADE_DESCRIPTION_TEXT,
                 getBanditUpgradeEmptyBaseSlotTextures(),
                 getBanditUpgradeEmptyAdditionsSlotTextures()
                 //? if >1.21.1
-                , settings
+                //, settings
         );
     }
 

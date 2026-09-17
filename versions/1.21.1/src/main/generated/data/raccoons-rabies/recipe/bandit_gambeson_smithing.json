@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "raccoons-rabies:raccoon_furs"
+  },
+  "base": {
+    "item": "minecraft:diamond_chestplate"
+  },
+  "result": {
+    "count": 1,
+    "id": "raccoons-rabies:bandit_gambeson"
+  },
+  "template": {
+    "item": "raccoons-rabies:bandit_upgrade"
+  }
+}

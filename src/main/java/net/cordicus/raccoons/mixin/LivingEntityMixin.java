@@ -17,11 +17,11 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
-    //? if <1.21.11
-    @Shadow public abstract boolean hasStatusEffect(Holder<MobEffect> effect);
+    //? if >=1.21.1
+    @Shadow public abstract boolean hasEffect(Holder<MobEffect> holder);
 
-    //? if >=1.21.11
-    //@Shadow public abstract boolean hasEffect(Holder<MobEffect> holder);
+    //? if <1.21.1
+    //@Shadow public abstract boolean hasEffect(MobEffect par1);
 
     public LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
@@ -29,10 +29,10 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "isAffectedByPotions", at = @At("RETURN"))
     private boolean raccoonsRabies$rabiesCancelsSplash(boolean original) {
-        //? if <1.21.11
-        if (hasStatusEffect(RaccoonsRabies.RABIES_EFFECT)) {
-        //? if >=1.21.11
-        //if (hasEffect(RaccoonsRabies.RABIES_EFFECT)) {
+        if (hasEffect(RaccoonsRabies.RABIES_EFFECT
+                //? if <1.21.1
+                //.value()
+        )) {
             return false;
         }
         return original;
@@ -40,10 +40,10 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "isSensitiveToWater", at = @At("RETURN"))
     private boolean raccoonRabies$rabiesHurtsInWater(boolean original) {
-        //? if <1.21.11
-        if (hasStatusEffect(RaccoonsRabies.RABIES_EFFECT)) {
-        //? if >=1.21.11
-        //if (hasEffect(RaccoonsRabies.RABIES_EFFECT)) {
+        if (hasEffect(RaccoonsRabies.RABIES_EFFECT
+                    //? if <1.21.1
+                    //.value()
+            )) {
             return true;
         }
         return original;
@@ -52,7 +52,12 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyReturnValue(method = "canBeAffected", at = @At("RETURN"))
     private boolean raccoonRabies$banditArmorRabiesImmunity(boolean original, MobEffectInstance effect) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if (RaccoonsRabiesArmourItem.isWearingFullArmorSet(entity) && effect.is(RaccoonsRabies.RABIES_EFFECT)) {
+        if (RaccoonsRabiesArmourItem.isWearingFullArmorSet(entity) &&
+                //? if >=1.21.1
+                effect.is(RaccoonsRabies.RABIES_EFFECT)
+                //? if <1.21.1
+                //effect.equals(RaccoonsRabies.RABIES_EFFECT)
+        ) {
             return false;
         }
         return original;

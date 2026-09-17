@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 //? if >=1.21.11
-import net.minecraft.server.permissions.Permissions;
+//import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -33,8 +33,14 @@ public class SpawnRaccoonCommand {
                                         return 0;
                                     }
                                     String type = StringArgumentType.getString(context, "type");
-                                    spawnRaccoon(player.level(), player.blockPosition(), type, player);
+                                    spawnRaccoon(player.level
+                                            //? if >1.19
+                                            ()
+                                            , player.blockPosition(), type, player);
+                                    //? if <26.1
                                     player.displayClientMessage(Component.literal("Spawned a " + type + " raccoon!"), false);
+                                    //? if >=26.2
+                                    //player.sendSystemMessage(Component.literal("Spawned a " + type + " raccoon!"), false);
                                     return 1;
                                 })
                         )

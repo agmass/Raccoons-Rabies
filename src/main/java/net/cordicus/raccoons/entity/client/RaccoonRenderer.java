@@ -6,16 +6,28 @@ import net.cordicus.raccoons.entity.custom.RaccoonEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 //? if <1.21.11
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+*///? }
 import net.minecraft.world.entity.Entity;
+//? <26.1 {
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-//? if >=1.21.11
-//import software.bernie.geckolib.renderer.base.RenderPassInfo;
+//? if >=1.21.11 {
+/*import software.bernie.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+*///? }
+//? } else {
+/*import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.base.RenderPassInfo;
+import com.geckolib.constant.dataticket.DataTicket;
+*///? }
 
 public class RaccoonRenderer extends GeoEntityRenderer<RaccoonEntity
         //? if >1.21.4
-        //, RaccoonRenderState
+        //, LivingEntityRenderState
         > {
     public RaccoonRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new RaccoonModel());
@@ -35,7 +47,7 @@ public class RaccoonRenderer extends GeoEntityRenderer<RaccoonEntity
 
     /*@Override
     public void scaleModelForRender(RenderPassInfo renderPassInfo, float widthScale, float heightScale) {
-        if (((RaccoonRenderState) renderPassInfo.renderState()).isBaby) {
+        if (((LivingEntityRenderState)renderPassInfo.renderState()).isBaby) {
             widthScale = 0.7f;
             heightScale = 0.7f;
         }
@@ -43,12 +55,15 @@ public class RaccoonRenderer extends GeoEntityRenderer<RaccoonEntity
     }
 
 
+    public static DataTicket<Integer> type = DataTicket.create("raccoon_type", Integer.class);
+    public static DataTicket<Boolean> isSitting = DataTicket.create("is_sitting", Boolean.class);
+
     @Override
-    public void extractRenderState(RaccoonEntity entity, RaccoonRenderState entityRenderState, float partialTick) {
+    public void extractRenderState(RaccoonEntity entity, LivingEntityRenderState entityRenderState, float partialTick) {
         super.extractRenderState(entity, entityRenderState, partialTick);
         entityRenderState.isBaby = entity.isBaby();
-        entityRenderState.raccoonType = entity.getRaccoonType();
-        entityRenderState.isInSittingPose = entity.isInSittingPose();
+        entityRenderState.addGeckolibData(type, entity.getRaccoonType());
+        entityRenderState.addGeckolibData(isSitting, entity.isInSittingPose());
     }
 
     *///? }

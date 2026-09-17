@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raccoon_furs": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#raccoons-rabies:raccoon_furs"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "raccoons-rabies:bandit_boots_smithing"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_raccoon_furs"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "raccoons-rabies:bandit_boots_smithing"
+    ]
+  }
+}

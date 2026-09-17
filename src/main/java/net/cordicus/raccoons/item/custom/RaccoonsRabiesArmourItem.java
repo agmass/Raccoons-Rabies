@@ -5,8 +5,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 //? if >1.21.1 {
 //? } else {
-/*import net.minecraft.world.item.*;
-*///? }
+import net.minecraft.world.item.*;
+//? }
 
 
 public class RaccoonsRabiesArmourItem {

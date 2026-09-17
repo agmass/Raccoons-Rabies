@@ -4,6 +4,7 @@ import net.cordicus.raccoons.command.SpawnRaccoonCommand;
 import net.cordicus.raccoons.common.effect.RabiesEffect;
 import net.cordicus.raccoons.entity.RREntityTypes;
 import net.cordicus.raccoons.entity.custom.RaccoonEntity;
+import net.cordicus.raccoons.item.RaccoonsRabiesTags;
 import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
 import net.cordicus.raccoons.porting.RRIdentifier;import net.cordicus.raccoons.sounds.RaccoonsRabiesSounds;
@@ -28,7 +29,6 @@ public class RaccoonsRabies implements ModInitializer {
 	public static final String MOD_ID = "raccoons-rabies";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final Holder<MobEffect> RABIES_EFFECT = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, RRIdentifier.of("rabies").id, new RabiesEffect());
-	public static final TagKey<Item> HITTABLE = TagKey.create(BuiltInRegistries.ITEM.key(), RRIdentifier.of("hittable").id);
 
 	@Override
 	public void onInitialize() {
@@ -37,6 +37,7 @@ public class RaccoonsRabies implements ModInitializer {
 		RREntityTypes.initMobEntities();
 		RaccoonsRabiesComponents.init();
 		RaccoonsRabiesSounds.registerSounds();
+		RaccoonsRabiesTags.init();
 		RaccoonsRabiesLootTableModifiers.modifyLootTables();
 		BiomeModifications.addSpawn(BiomeSelectors.includeByKey(Biomes.FOREST),
 				MobCategory.CREATURE,

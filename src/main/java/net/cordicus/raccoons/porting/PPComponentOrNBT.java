@@ -6,6 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+//? if >=1.21.1
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,8 @@ public class PPComponentOrNBT<T> {
         this.codec = persistentCodec;
         this.name = name;
     }
+
+    //? if >=1.21.1 {
     public PPComponentOrNBT(
             String name,
             Codec<T> persistentCodec
@@ -49,6 +52,8 @@ public class PPComponentOrNBT<T> {
         this.codec = persistentCodec;
         this.name = name;
     }
+    //? }
+
     public PPComponentOrNBT(
             String name,
             Codec<T> persistentCodec
