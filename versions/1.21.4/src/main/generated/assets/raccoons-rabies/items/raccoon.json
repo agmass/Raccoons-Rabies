@@ -1,0 +1,150 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_amethyst"
+              },
+              "when": 1
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_albino"
+              },
+              "when": 2
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_bandit"
+              },
+              "when": 6
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_cordicus"
+              },
+              "when": 4
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_nitron"
+              },
+              "when": 5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_normal"
+              },
+              "when": 0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_yak"
+              },
+              "when": 7
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_rocket"
+              },
+              "when": 8
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "raccoons-rabies:item/raccoon_normal"
+          },
+          "property": "raccoons-rabies:skin_component_content"
+        },
+        "when": false
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_amethyst_baby"
+              },
+              "when": 1
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_albino_baby"
+              },
+              "when": 2
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_bandit_baby"
+              },
+              "when": 6
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_cordicus_baby"
+              },
+              "when": 4
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_nitron_baby"
+              },
+              "when": 5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_normal_baby"
+              },
+              "when": 0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_yak_baby"
+              },
+              "when": 7
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "raccoons-rabies:item/raccoon_rocket_baby"
+              },
+              "when": 8
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "raccoons-rabies:item/raccoon_normal"
+          },
+          "property": "raccoons-rabies:skin_component_content"
+        },
+        "when": true
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "raccoons-rabies:item/raccoon_normal"
+    },
+    "property": "raccoons-rabies:baby_component_content"
+  }
+}

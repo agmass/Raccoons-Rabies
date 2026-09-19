@@ -49,8 +49,9 @@ public final class PPTypedEntityData<IdType> {
                 /*return CompoundTag.CODEC
                         .decode(dynamicOps, object).flatMap((pair) -> {
                             CompoundTag compoundTag = ((CompoundTag)pair.getFirst()).copy();
+                            Tag tag = compoundTag.get("id");
                             compoundTag.remove("id");
-                            return codec.parse(asNbtOps(dynamicOps), compoundTag).map((objectx) -> Pair.of(new PPTypedEntityData<>(objectx, compoundTag), pair.getSecond()));
+                            return codec.parse(asNbtOps(dynamicOps), tag).map((objectx) -> Pair.of(new PPTypedEntityData<>(objectx, compoundTag), pair.getSecond()));
                         });
                 *///? } else {
                 
@@ -66,7 +67,7 @@ public final class PPTypedEntityData<IdType> {
                     //? if >=1.21.11
                     //Tag tag = compoundTag.remove("id");
                     //? if <=1.21.4 {
-                    CompoundTag tag = compoundTag;
+                    Tag tag = compoundTag.get("id");
                     //? }
                     return tag == null ? DataResult.error(() -> "Expected 'id' field in " + String.valueOf(object)) : codec.parse(asNbtOps(dynamicOps), tag).map((objectx) -> Pair.of(new PPTypedEntityData<>(objectx, compoundTag), pair.getSecond()));
                 });
@@ -113,10 +114,10 @@ public final class PPTypedEntityData<IdType> {
     PPTypedEntityData(IdType object, CompoundTag compoundTag) {
         this.type = object;
         //? if >=1.21.1 {
-        //this.tag = stripId(compoundTag);
+        this.tag = stripId(compoundTag);
         //? } else {
-        this.tag = compoundTag;
-        //? }
+        /*this.tag = compoundTag;
+        *///? }
     }
 
     public static <T> PPTypedEntityData<T> of(T object, CompoundTag compoundTag) {

@@ -85,7 +85,7 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 *///? }
 
                 //?if >=26.3 {
-                /*RecipeOutput recipeOutput = (RecipeOutput) recipeOutput1;
+                /*RecipeOutput recipeOutput = output;
                 *///? }
 
                 //? if <1.21.4

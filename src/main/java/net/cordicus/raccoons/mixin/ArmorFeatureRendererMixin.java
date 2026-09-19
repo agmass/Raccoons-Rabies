@@ -36,7 +36,7 @@ public abstract class ArmorFeatureRendererMixin<T extends
     //? >1.21.1 {
     /*private void raccoonRabies$removeHood(PoseStack matrices, MultiBufferSource vertexConsumers, ItemStack changingarg, EquipmentSlot slot, int light, A armorModel, Operation<Void> original){
         ItemStack stack = changingarg;
-        *///? } else if <=1.21.1 {
+    *///? } else if <=1.21.1 {
     private void raccoonRabies$removeHood(PoseStack matrices, MultiBufferSource vertexConsumers, T changingarg, EquipmentSlot slot, int light, A armorModel, Operation<Void> original){
       ItemStack stack = changingarg.getItemBySlot(slot);
       //? }

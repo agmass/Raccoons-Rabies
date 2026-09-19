@@ -13,6 +13,8 @@ import net.cordicus.raccoons.entity.custom.RaccoonEntity;
 import net.cordicus.raccoons.item.RaccoonsRabiesItems;
 import net.cordicus.raccoons.item.component.RaccoonHandheldDataComponent;
 import net.cordicus.raccoons.item.component.RaccoonsRabiesComponents;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -181,18 +183,16 @@ public class RaccoonHandheldItem extends Item {
     public static ItemStack getRaccoonOnHead(LivingEntity livingEntity) {
 
         //? if <26.1 {
-
         Optional<TrinketComponent> trinketComponent = TrinketsApi.getTrinketComponent(livingEntity);
-        if (trinketComponent.isPresent()) {
-            return trinketComponent.get().getEquipped(RaccoonsRabiesItems.RACCOON).get(0).getB();
-        }
+        return trinketComponent.map(component -> component.getEquipped(RaccoonsRabiesItems.RACCOON).get(0).getB()).orElse(ItemStack.EMPTY);
         //? } else {
         /*TrinketAttachment trinketComponent = TrinketsApi.getAttachment(livingEntity);
         if (trinketComponent.isEquipped(RaccoonsRabiesItems.RACCOON)) {
             return trinketComponent.getSlotAccess(DefaultTrinketSlots.HEAD_HAT, 0).get();
         }
+        return null;
         *///? }
-        return ItemStack.EMPTY;
+
     }
 
 }

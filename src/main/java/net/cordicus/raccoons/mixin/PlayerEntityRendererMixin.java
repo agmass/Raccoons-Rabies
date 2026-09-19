@@ -27,10 +27,13 @@ public class PlayerEntityRendererMixin {
     //? if <=1.20.4 {
     /*@Inject(method = "getArmPose", at = @At("HEAD"), cancellable = true)
     private static void raccoonsrabies$getArmPoseDR(AbstractClientPlayer player, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-    *///? } else if <=1.21.4 {
-    @Inject(method = "getArmPose(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
+    *///? } else if =1.21.4 {
+    /*@Inject(method = "getArmPose(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void raccoonsrabies$getArmPoseDR(Player player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-    //? } else {
+    *///? } else if <=1.21.1 {
+    @Inject(method = "getArmPose", at = @At("HEAD"), cancellable = true)
+    private static void raccoonsrabies$getArmPoseDR(AbstractClientPlayer player, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
+        //? } else {
     /*@Inject(method = "getArmPose(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void raccoonsrabies$getArmPoseDR(Avatar player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
     *///? }

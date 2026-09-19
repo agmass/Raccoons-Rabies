@@ -2,38 +2,27 @@ package net.cordicus.raccoons.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HeadedModel;
-//? <26.2
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.cordicus.raccoons.item.custom.RaccoonHandheldItem;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-//import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-//import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(CustomHeadLayer.class)
 public abstract class HeadFeatureRendererMixin
-        //<S extends LivingEntityRenderState, M extends EntityModel<S> & HeadedModel> extends RenderLayer<S, M>
 {
 
-    /*public HeadFeatureRendererMixin(RenderLayerParent<S, M> context) {
-        super(context);
+    //? if <=1.21.1 {
+    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack raccoonsRabies$renderRaccoonOnHead(LivingEntity instance, EquipmentSlot equipmentSlot, Operation<ItemStack> original) {
+        if (RaccoonHandheldItem.hasRaccoonEquipped(instance)) {
+            return RaccoonHandheldItem.getRaccoonOnHead(instance);
+        }
+
+        return original.call(instance, equipmentSlot);
     }
+    //? }
 
-    @WrapOperation(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/state/LivingEntityRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/ItemRenderState;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V"))
-    private void raccoonsRabies$renderRaccoonOnHead(ItemStackRenderState instance, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Operation<Void> original, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, S livingEntityRenderState, float f, float g) {
-        //ItemRenderState.LayerRenderState layerRenderState = instance.newLayer();
-        //layerRenderState.setModel();
-        //ItemRenderState newState = new ItemRenderState();
-        
-
-        original.call(instance, matrices, vertexConsumers, light, overlay);
-        //return RaccoonHandheldItem.hasRaccoonEquipped(livingEntity) ? RaccoonHandheldItem.getRaccoonOnHead(livingEntity) : original.call(livingEntity, equipmentSlot);
-    } // full of joy from the revelation given by my muse
-     */
-    // This mixin does nothing? Lol - agmas
 }

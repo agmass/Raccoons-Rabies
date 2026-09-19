@@ -12,7 +12,8 @@
     "HeadFeatureRendererMixin",
     "InGameHudMixin",
     "ModelPropertiesMixin",
-    "PlayerEntityRendererMixin"
+    "PlayerEntityRendererMixin",
+    "RaccoonOnHeadNewVersionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

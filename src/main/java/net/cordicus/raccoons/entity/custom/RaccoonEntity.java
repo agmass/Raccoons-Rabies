@@ -15,6 +15,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 //import net.minecraft.advancements.triggers.CriteriaTriggers;
 //? if >=1.21.1
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -407,24 +408,6 @@ public class RaccoonEntity extends TamableAnimal implements NeutralMob, GeoEntit
         //return stack.getItem().getFoodProperties() != null;
     }
 
-    public boolean doHurtTarget(ServerLevel world, Entity target) {
-        boolean bl = super.doHurtTarget(
-                //? if >1.21.1
-                //world,
-                target);
-        if (bl) {
-            int check = this.getRandom().nextInt(100 + 1);
-            if (target instanceof LivingEntity livingEntity && check <= 50) { // 50% chance to give rabies, rabies duration is 40 ticks + (the check * 2) (min is 2 seconds, max is 140 ticks or 7 seconds)
-                livingEntity.addEffect(new MobEffectInstance(RaccoonsRabies.RABIES_EFFECT
-                        //? if <=1.20.4
-                        //.value()
-                        , (check * 2) + 40, 0));
-            }
-        }
-        return bl;
-    }
-
-
     public boolean isAngryAtAllPlayers(ServerLevel world) {
         //? if <1.21.11
         return world.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER) && this.isAngry() && this.getPersistentAngerTarget() == null;
@@ -445,7 +428,6 @@ public class RaccoonEntity extends TamableAnimal implements NeutralMob, GeoEntit
                 //? if <=1.21.4 {
 
                 CompoundTag nbt = new CompoundTag();
-                this.save(nbt);
                 this.saveWithoutId(nbt);
                 this.addAdditionalSaveData(nbt);
                 if (this.isTame()) { // keeping this just in case :p
@@ -455,7 +437,7 @@ public class RaccoonEntity extends TamableAnimal implements NeutralMob, GeoEntit
 
                 //? } else {
                 /*TagValueOutput tagValueOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess());
-                save(tagValueOutput);
+
                 saveWithoutId(tagValueOutput);
                 addAdditionalSaveData(tagValueOutput);
                 CompoundTag nbt = tagValueOutput.buildResult();

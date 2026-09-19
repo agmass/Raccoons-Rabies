@@ -16,8 +16,12 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+//? if <26.3 {
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+//? } else {
+/*import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+*///? }
 
 public class RaccoonsRabiesLootTableModifiers {
 
@@ -41,20 +45,34 @@ public class RaccoonsRabiesLootTableModifiers {
 
             if (key.equals(STRONGHOLD_CORRIDOR_ID)) {
                 LootPool.Builder poolCorridorBuilder = LootPool.lootPool()
+                        //? if >=26.3
+                        //.setRolls(ContextIntProviders.exactly(1))
+                        //? if <26.3
                         .setRolls(ConstantValue.exactly(1))
                         .when(LootItemRandomChanceCondition.randomChance(0.3f)) // Drop %
                         .add(LootItem.lootTableItem(RaccoonsRabiesItems.BANDIT_UPGRADE))
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 1.0f)).build());
+                        //? if >=26.3
+                        //.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1,1))
+                        //? if <26.3
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 1.0f))
+                        .build());
 
 
                 tableBuilder.pool(poolCorridorBuilder.build());
             }
             if (key.equals(STRONGHOLD_CROSSING_ID)) {
                 LootPool.Builder poolCrossingBuilder = LootPool.lootPool()
+                        //? if >=26.3
+                        //.setRolls(ContextIntProviders.exactly(1))
+                        //? if <26.3
                         .setRolls(ConstantValue.exactly(1))
                         .when(LootItemRandomChanceCondition.randomChance(0.3f)) // Drop %
                         .add(LootItem.lootTableItem(RaccoonsRabiesItems.BANDIT_UPGRADE))
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 1.0f)).build());
+                        //? if >=26.3
+                        //.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1,1))
+                        //? if <26.3
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 1.0f))
+                        .build());
 
                 tableBuilder.pool(poolCrossingBuilder.build());
             }

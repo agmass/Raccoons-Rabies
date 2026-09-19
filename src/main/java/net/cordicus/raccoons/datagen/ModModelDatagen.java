@@ -43,6 +43,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -73,9 +74,13 @@ public class ModModelDatagen extends FabricModelProvider {
         itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.BANDIT_GAMBESON, ModelTemplates.FLAT_ITEM);
         itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.BANDIT_BOOTS, ModelTemplates.FLAT_ITEM);
         itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.BANDIT_UPGRADE, ModelTemplates.FLAT_ITEM);
-        itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.RACCOON_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
         itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.ALBINO_RACCOON_FUR, ModelTemplates.FLAT_ITEM);
         itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.RACCOON_FUR, ModelTemplates.FLAT_ITEM);
+        //? if <=1.21.4 {
+        itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.RACCOON_SPAWN_EGG, new ModelTemplate(Optional.of(RRIdentifier.ofVanilla("item/template_spawn_egg").id), Optional.empty()));
+        //? } else {
+        /*itemModelGenerator.generateFlatItem(RaccoonsRabiesItems.RACCOON_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+        *///? }
 
         //? if >=1.21.4 {
         /*createRaccoon(itemModelGenerator, RaccoonsRabiesItems.RACCOON);
